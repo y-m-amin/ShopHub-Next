@@ -1,29 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
-import path from 'path';
+import { productService } from '../../../../../lib/postgres-database';
 
-const DB_PATH = path.join(process.cwd(), 'server', 'db.json');
+// CORS headers
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-seller-id',
+};
 
-async function readDB() {
-  try {
-    const data = await fs.readFile(DB_PATH, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    console.error('Error reading database:', error);
-    return { products: [], orders: [], users: [] };
-  }
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 200, headers: corsHeaders });
 }
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ sellerId: string }> }
+  { params }: { params: Promise<{ sellerId: string }> },
 ) {
   try {
     const { sellerId } = await params;
-    const db = await readDB();
-    const products = db.products.filter((p: any) => p.sellerId === decodeURIComponent(sellerId));
-    return NextResponse.json(products);
+    const products = await productService.getBySellerId(sellerId);
+    return NextResponse.json(products, { headers: corsHeaders });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch seller products' }, { status: 500 });
+    console.error('Error fetching seller products:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch seller products' },
+      { status: 500, headers: corsHeaders },
+    );
   }
 }

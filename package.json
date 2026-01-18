@@ -6,12 +6,20 @@
   "scripts": {
     "dev": "concurrently \"npm run server\" \"next dev\"",
     "dev:vercel": "next dev",
+    "dev:local": "concurrently \"npm run server\" \"next dev\"",
     "server": "nodemon server/index.js",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "vercel-build": "next build",
+    "deploy": "node deploy.js"
   },
   "dependencies": {
+    "@types/bcryptjs": "^3.0.0",
+    "@types/better-sqlite3": "^7.6.13",
+    "@vercel/postgres": "^0.10.0",
+    "bcryptjs": "^3.0.3",
+    "better-sqlite3": "^12.6.2",
     "cors": "^2.8.5",
     "express": "^5.2.1",
     "lucide-react": "^0.562.0",

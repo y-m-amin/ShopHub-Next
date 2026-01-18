@@ -1,4 +1,3 @@
-
 export interface Product {
   id: string;
   name: string;
@@ -9,6 +8,7 @@ export interface Product {
   rating: number;
   stock: number;
   sellerId: string;
+  verified?: boolean;
   createdAt?: string;
   updatedAt?: string;
 }
