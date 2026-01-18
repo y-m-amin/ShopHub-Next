@@ -69,27 +69,40 @@ const handler = NextAuth({
   debug: process.env.NODE_ENV === 'development',
   callbacks: {
     async signIn({ user, account, profile }) {
+      console.log('SignIn callback called:', {
+        provider: account?.provider,
+        email: user.email,
+      });
+
       if (account?.provider === 'google') {
         try {
+          console.log('Processing Google OAuth user:', user.email);
+
           // Check if user exists in database
           let dbUser = await userService.getByEmail(user.email!);
+          console.log('Existing user check:', dbUser ? 'found' : 'not found');
 
           if (!dbUser) {
+            console.log('Creating new Google user...');
             // Create new user from Google OAuth
             dbUser = await userService.create({
               email: user.email!,
               name: user.name!,
               image: user.image,
               provider: 'google',
+              // No password needed for Google OAuth users
             });
+            console.log('Google user created successfully:', dbUser.id);
           }
 
           // Update user object with database info
           user.id = dbUser.id;
           (user as any).phone = dbUser.phone;
+          console.log('Google OAuth sign-in successful');
         } catch (error) {
           console.error('Google OAuth user creation error:', error);
-          // Allow sign in even if database operation fails
+          // Return false to prevent sign-in if database operation fails
+          return false;
         }
       }
       return true;

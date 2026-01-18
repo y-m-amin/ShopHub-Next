@@ -20,10 +20,28 @@ export async function GET() {
     // Simple connection test
     const result = await sql`SELECT 1 as test`;
 
+    // Check if tables exist
+    let tablesExist = false;
+    let tableNames = [];
+    try {
+      const tableCheck = await sql`
+        SELECT table_name 
+        FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        AND table_name IN ('users', 'products', 'orders', 'wishlists')
+      `;
+      tableNames = tableCheck.rows.map((row) => row.table_name);
+      tablesExist = tableCheck.rows.length > 0;
+    } catch (tableError) {
+      console.log('Table check failed:', tableError);
+    }
+
     return NextResponse.json({
       status: 'connected',
       message: 'Database connection successful',
       hasPostgresUrl: true,
+      tablesExist,
+      tableNames,
       nodeEnv: process.env.NODE_ENV,
       timestamp: new Date().toISOString(),
       testQuery: result.rows[0],
