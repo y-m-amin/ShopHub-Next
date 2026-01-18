@@ -1,0 +1,5 @@
+{
+  "name": "Nexus Marketplace",
+  "description": "A high-performance marketplace platform built with Next.js architecture, featuring product listings, secure mock authentication, and a complete user dashboard.",
+  "requestFramePermissions": []
+}

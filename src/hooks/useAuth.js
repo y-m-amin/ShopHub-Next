@@ -1,3 +1,4 @@
+// /src/hooks/useAuth.js
 'use client';
 
 import { useAuth as useAuthContext } from '@/components/auth/AuthProvider';

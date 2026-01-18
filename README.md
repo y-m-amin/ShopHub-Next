@@ -1,446 +1,172 @@
-# ShopHub - Modern E-Commerce Platform
 
-A comprehensive e-commerce platform built with Next.js 15, featuring authentication, product browsing, and item management capabilities. This application demonstrates modern web development practices with a focus on performance, accessibility, and user experience.
+# Nexus Marketplace - Next.js 15 Edition
 
-## 🚀 Features
+A high-performance premium hardware marketplace built with Next.js 15 App Router and Express.js backend.
 
-### Core Functionality
+## Features
+- **Authentication**: NextAuth.js integration with Google and Mock Credentials.
+- **Dynamic Routing**: Product details and marketplace filtering.
+- **Theming**: System-aware Dark/Light mode toggle.
+- **Dashboard**: Track orders and manage wishlist.
+- **Seller Flow**: Post new items to the marketplace.
+- **Responsive**: Fully optimized for mobile and desktop.
+- **API Integration**: Full CRUD operations with JSON file storage.
+- **Toast Notifications**: Real-time user feedback.
+- **Express.js Backend**: RESTful API with file-based database.
 
-- **Product Browsing**: Public access to view all products with detailed information
-- **User Authentication**: Secure login system with session management
-- **Item Management**: Protected interface for authenticated users to add new products
-- **Responsive Design**: Optimized for all device sizes using Tailwind CSS
-- **Theme Support**: Light and dark mode with system preference detection
-- **Smooth Animations**: GSAP-powered animations for enhanced user experience
-
-### Technical Features
-
-- **Next.js 15**: Latest App Router with server-side rendering
-- **JSON Database**: File-based data persistence with concurrent access safety
-- **RESTful API**: Express.js backend with comprehensive error handling
-- **Property-Based Testing**: Comprehensive test coverage with correctness properties
-- **Performance Optimization**: Lazy loading, caching, and animation optimization
-- **Accessibility**: WCAG compliant with keyboard navigation and screen reader support
-
-## 🛠 Technology Stack
-
-### Frontend
-
-- **Framework**: Next.js 15 with App Router
-- **Styling**: Tailwind CSS with custom design system
-- **Components**: Shadcn UI component library
-- **Animations**: GSAP (GreenSock Animation Platform)
-- **State Management**: React Context API
-- **Authentication**: NextAuth.js with multiple providers
-
-### Backend
-
-- **API**: Next.js API Routes with Express.js middleware
-- **Database**: JSON file-based storage with atomic operations
-- **Session Management**: HTTP-only cookies with secure configuration
-- **Validation**: Custom validation middleware with schema support
-
-### Development & Testing
-
-- **Testing**: Jest with React Testing Library
-- **Property Testing**: Fast-check for property-based testing
-- **Linting**: ESLint with Next.js configuration
-- **Type Safety**: JSDoc annotations with TypeScript checking
-
-## 📁 Project Structure
+## Project Structure
 
 ```
-src/
-├── app/                    # Next.js App Router pages
-│   ├── api/               # API routes
-│   │   ├── auth/          # Authentication endpoints
-│   │   └── items/         # Item management endpoints
-│   ├── products/          # Product browsing pages
-│   ├── login/             # Authentication page
-│   ├── add-item/          # Protected item creation page
-│   └── layout.js          # Root layout with providers
-├── components/            # React components
-│   ├── auth/              # Authentication components
-│   ├── items/             # Product-related components
-│   ├── navigation/        # Navigation components
-│   ├── ui/                # Reusable UI components
-│   └── __tests__/         # Component tests
-├── lib/                   # Utility libraries
-│   ├── auth.js            # Authentication utilities
-│   ├── database.js        # Database operations
-│   ├── animations.js      # Animation utilities
-│   ├── performance.js     # Performance optimization
-│   └── accessibility.js   # Accessibility helpers
-├── hooks/                 # Custom React hooks
-└── contexts/              # React context providers
+nexus-marketplace/
+├── app/                          # Next.js App Router pages
+│   ├── add-item/
+│   │   └── page.tsx             # Product creation form (Protected)
+│   ├── api/                     # Next.js API routes (Vercel serverless)
+│   │   ├── auth/
+│   │   │   └── [...nextauth]/   # NextAuth.js configuration
+│   │   ├── health/
+│   │   │   └── route.ts         # Health check endpoint
+│   │   ├── orders/
+│   │   │   ├── route.ts         # Orders CRUD
+│   │   │   └── [userId]/
+│   │   │       └── route.ts     # User-specific orders
+│   │   └── products/
+│   │       ├── route.ts         # Products CRUD
+│   │       ├── [id]/
+│   │       │   └── route.ts     # Single product operations
+│   │       └── seller/
+│   │           └── [sellerId]/
+│   │               └── route.ts # Seller's products
+│   ├── checkout/
+│   │   └── page.tsx             # 3-step checkout process (Protected)
+│   ├── dashboard/
+│   │   └── page.tsx             # User dashboard (Protected)
+│   ├── items/
+│   │   ├── page.tsx             # Product catalog (Public)
+│   │   └── [id]/
+│   │       └── page.tsx         # Product details (Public)
+│   ├── login/
+│   │   └── page.tsx             # Authentication page
+│   ├── my-listings/
+│   │   └── page.tsx             # Seller product management (Protected)
+│   ├── globals.css              # Global styles
+│   ├── layout.tsx               # Root layout with providers
+│   └── page.tsx                 # Landing page (7 sections)
+├── components/                   # Reusable React components
+│   ├── Footer.tsx               # Site footer
+│   ├── Navbar.tsx               # Navigation with auth
+│   ├── ProductCard.tsx          # Product display component
+│   └── Providers.tsx            # Context providers wrapper
+├── server/                       # Express.js backend
+│   ├── index.js                 # Express server with REST API
+│   └── db.json                  # JSON file database
+├── services/                     # API and data services
+│   ├── apiService.ts            # HTTP client for API calls
+│   └── dbService.ts             # Local storage service (legacy)
+├── .env.local                   # Environment variables
+├── .gitignore                   # Git ignore rules
+├── .vercelignore               # Vercel deployment exclusions
+├── constants.ts                 # App constants and mock data
+├── DEPLOYMENT.md               # Deployment instructions
+├── metadata.json               # App metadata
+├── next.config.js              # Next.js configuration
+├── package.json                # Dependencies and scripts
+├── postcss.config.js           # PostCSS configuration
+├── proxy.ts                    # Next.js 15 proxy configuration
+├── README.md                   # This file
+├── tailwind.config.js          # Tailwind CSS configuration
+├── tsconfig.json               # TypeScript configuration
+├── types.ts                    # TypeScript type definitions
+└── vercel.json                 # Vercel deployment configuration
 ```
 
-## 🚦 Getting Started
-
-### Prerequisites
-
-- Node.js 18+
-- npm, yarn, or pnpm
-
-### Installation
-
-1. **Clone the repository**
-
-   ```bash
-   git clone <repository-url>
-   cd shophub
-   ```
-
-2. **Install dependencies**
-
-   ```bash
-   npm install
-   # or
-   yarn install
-   # or
-   pnpm install
-   ```
-
-3. **Set up environment variables**
-
-   ```bash
-   cp .env.local.example .env.local
-   ```
-
-   Configure the following variables in `.env.local`:
-
+## Installation
+1. Install dependencies: `npm install`
+2. Configure `.env.local` with:
    ```env
    NEXTAUTH_SECRET=your-secret-key
    NEXTAUTH_URL=http://localhost:3000
-   GOOGLE_CLIENT_ID=your-google-client-id (optional)
-   GOOGLE_CLIENT_SECRET=your-google-client-secret (optional)
+   GOOGLE_CLIENT_ID=your-google-client-id
+   GOOGLE_CLIENT_SECRET=your-google-client-secret
+   NEXT_PUBLIC_API_URL=http://localhost:5000/api
    ```
+3. Start development: 
+   - `npm run dev` (Express server + Next.js)
+   - `npm run dev:vercel` (Next.js only, uses API routes)
+   - `npm run server` (Express server only)
 
-4. **Initialize the database**
+## Deployment Architecture
 
-   ```bash
-   npm run db:init
-   ```
+### Current Setup (Hybrid)
+- **Frontend**: Deployed to Vercel (Next.js App Router)
+- **Backend**: Two options available:
+  1. **Express.js Server** (`/server/index.js`) - File-based storage
+  2. **Next.js API Routes** (`/app/api/*`) - Serverless functions
 
-5. **Start the development server**
+### Recommended Production Setup
+1. **Frontend (Next.js)** → Vercel
+2. **Backend (Express.js)** → Railway/Render (supports file persistence)
 
-   ```bash
-   npm run dev
-   ```
+## API Endpoints (Express.js Server)
 
-6. **Open your browser**
-   Navigate to [http://localhost:3000](http://localhost:3000)
+### Products
+- `GET /api/products` - Fetch all products
+- `POST /api/products` - Create new product
+- `GET /api/products/:id` - Get single product
+- `PUT /api/products/:id` - Update product
+- `DELETE /api/products/:id` - Delete product
+- `GET /api/products/seller/:sellerId` - Get seller's products
 
-### Default Credentials
+### Orders
+- `GET /api/orders/:userId` - Get user's orders
+- `POST /api/orders` - Create new order
 
-For testing purposes, use these credentials:
+### Health
+- `GET /api/health` - Server health check
 
-- **Email**: `admin@example.com`
-- **Password**: `password123`
-
-## 📖 API Documentation
-
-### Authentication Endpoints
-
-#### POST `/api/auth/login`
-
-Authenticate user with credentials.
-
-**Request Body:**
-
-```json
-{
-  "email": "admin@example.com",
-  "password": "password123"
-}
-```
-
-**Response:**
-
-```json
-{
-  "success": true,
-  "user": {
-    "id": "user-id",
-    "email": "admin@example.com",
-    "name": "Admin User"
-  }
-}
-```
-
-#### POST `/api/auth/logout`
-
-Logout current user and clear session.
-
-#### GET `/api/auth/session`
-
-Get current user session information.
-
-### Items Endpoints
-
-#### GET `/api/items`
-
-Retrieve all items (public access).
-
-**Query Parameters:**
-
-- `page` (optional): Page number for pagination
-- `limit` (optional): Items per page (default: 10)
-
-**Response:**
-
-```json
-{
-  "success": true,
-  "items": [
-    {
-      "id": "item-id",
-      "name": "Product Name",
-      "description": "Product description",
-      "price": 29.99,
-      "image": "image-url",
-      "createdAt": "2024-01-01T00:00:00.000Z"
-    }
-  ],
-  "total": 1
-}
-```
-
-#### GET `/api/items/[id]`
-
-Retrieve specific item by ID (public access).
-
-#### POST `/api/items` (Protected)
-
-Create new item (requires authentication).
-
-**Request Body:**
-
-```json
-{
-  "name": "New Product",
-  "description": "Product description",
-  "price": 29.99,
-  "image": "image-url"
-}
-```
-
-#### PUT `/api/items/[id]` (Protected)
-
-Update existing item (requires authentication).
-
-#### DELETE `/api/items/[id]` (Protected)
-
-Delete item (requires authentication).
-
-## 🗺 Route Summary
+## Route Summary
 
 ### Public Routes
-
-- `/` - Landing page with 7 content sections
-- `/products` - Product listing page
-- `/products/[id]` - Individual product details
-- `/login` - User authentication page
-- `/about` - About page
-- `/contact` - Contact information
-
-### Protected Routes
-
-- `/add-item` - Create new products (requires authentication)
-- `/dashboard/profile` - User profile management
-
-### API Routes
-
-- `/api/auth/*` - Authentication endpoints
-- `/api/items` - Item management endpoints
-
-## 🧪 Testing
-
-### Running Tests
-
-```bash
-# Run all tests
-npm test
-
-# Run tests in watch mode
-npm run test:watch
-
-# Run property-based tests
-npm run test:properties
-
-# Run with coverage
-npm run test:coverage
-```
-
-### Test Categories
-
-1. **Unit Tests**: Component and function testing
-2. **Property-Based Tests**: Correctness properties validation
-3. **Integration Tests**: End-to-end workflow testing
-4. **Accessibility Tests**: WCAG compliance verification
-
-### Property-Based Testing
-
-The application includes comprehensive property-based tests that validate:
-
-- **Route Protection**: Unauthenticated access redirects
-- **Authentication Persistence**: Session state maintenance
-- **Item Display Completeness**: Required field presence
-- **Navigation Consistency**: Link behavior validation
-- **Data Persistence**: CRUD operation integrity
-- **Form Validation**: Input validation enforcement
-- **Theme System**: Consistent theme application
-- **Loading States**: Proper loading indicator display
-
-## 🎨 Design System
-
-### Color Palette
-
-- **Primary**: Blue (#3B82F6)
-- **Secondary**: Purple (#8B5CF6)
-- **Success**: Green (#10B981)
-- **Warning**: Yellow (#F59E0B)
-- **Error**: Red (#EF4444)
-
-### Typography
-
-- **Primary Font**: Geist Sans
-- **Monospace Font**: Geist Mono
-- **Font Sizes**: Tailwind CSS scale (text-xs to text-9xl)
-
-### Components
-
-All UI components are built with Shadcn UI and customized for the application's design system.
-
-## 🚀 Performance Optimization
-
-### Implemented Optimizations
-
-- **Code Splitting**: Automatic route-based splitting
-- **Image Optimization**: Next.js Image component with lazy loading
-- **Animation Performance**: GPU-accelerated animations with GSAP
-- **Caching**: Memoization and TTL-based caching
-- **Bundle Optimization**: Tree shaking and dead code elimination
-
-### Performance Monitoring
-
-- **Core Web Vitals**: Monitored and optimized
-- **Animation Performance**: 60fps target with fallbacks
-- **API Response Times**: Optimized database operations
-- **Memory Usage**: Efficient component lifecycle management
-
-## ♿ Accessibility Features
-
-### WCAG Compliance
-
-- **Level AA**: Full compliance with WCAG 2.1 AA standards
-- **Keyboard Navigation**: Full keyboard accessibility
-- **Screen Reader Support**: Proper ARIA labels and announcements
-- **Color Contrast**: Minimum 4.5:1 contrast ratio
-- **Focus Management**: Visible focus indicators and logical tab order
-
-### Accessibility Tools
-
-- **Focus Trapping**: Modal and overlay focus management
-- **Skip Links**: Keyboard navigation shortcuts
-- **Reduced Motion**: Respects user motion preferences
-- **High Contrast**: Support for high contrast themes
-
-## 🔧 Configuration
-
-### Environment Variables
-
-```env
-# Authentication
-NEXTAUTH_SECRET=your-secret-key
-NEXTAUTH_URL=http://localhost:3000
-
-# Google OAuth (optional)
-GOOGLE_CLIENT_ID=your-google-client-id
-GOOGLE_CLIENT_SECRET=your-google-client-secret
-
-# Database
-DATABASE_PATH=./data/database.json
-
-# Development
-NODE_ENV=development
-```
-
-### Build Configuration
-
-The application uses Next.js default configuration with custom optimizations for:
-
-- Bundle analysis
-- Image optimization
-- Performance monitoring
-- Security headers
-
-## 📦 Deployment
-
-### Production Build
-
-```bash
-# Create production build
-npm run build
-
-# Start production server
-npm start
-```
-
-### Deployment Platforms
-
-- **Vercel**: Recommended platform with zero configuration
-- **Netlify**: Static site deployment with serverless functions
-- **Docker**: Containerized deployment option
-- **Traditional Hosting**: Node.js server deployment
-
-### Environment Setup
-
-1. Set production environment variables
-2. Configure database persistence
-3. Set up monitoring and logging
-4. Configure security headers
-5. Enable HTTPS
-
-## 🤝 Contributing
-
-### Development Workflow
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests for new functionality
-5. Ensure all tests pass
-6. Submit a pull request
-
-### Code Standards
-
-- **ESLint**: Follow the configured linting rules
-- **Prettier**: Use for code formatting
-- **Commit Messages**: Follow conventional commit format
-- **Testing**: Maintain test coverage above 80%
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- **Next.js Team**: For the amazing framework
-- **Tailwind CSS**: For the utility-first CSS framework
-- **Shadcn**: For the beautiful component library
-- **GSAP**: For powerful animation capabilities
-- **Vercel**: For hosting and deployment platform
-
-## 📞 Support
-
-For support and questions:
-
-- **Documentation**: Check this README and inline code comments
-- **Issues**: Create an issue on GitHub
-- **Discussions**: Use GitHub Discussions for questions
-- **Email**: contact@shophub.example.com
-
----
-
-**Built with ❤️ using Next.js 15 and modern web technologies**
+- `/` - Landing page with features, testimonials, pricing, FAQ
+- `/items` - Product catalog with search and filtering
+- `/items/[id]` - Individual product details
+- `/login` - Authentication (Google OAuth + Mock login)
+
+### Protected Routes (Require Authentication)
+- `/dashboard` - User dashboard with orders and wishlist
+- `/add-item` - Product creation form with image upload
+- `/my-listings` - Seller's product management (CRUD operations)
+- `/checkout` - 3-step checkout process (shipping, payment, review)
+
+## Key Features Implemented
+
+✅ **Landing Page**: 7 sections (hero, features, testimonials, pricing, FAQ)  
+✅ **Authentication**: NextAuth.js with Google OAuth and mock credentials  
+✅ **Product Catalog**: Public browsing with search and filtering  
+✅ **Product Details**: Individual product pages with full information  
+✅ **Protected Routes**: Authentication-gated pages  
+✅ **Product Management**: Full CRUD operations for sellers  
+✅ **Order Processing**: Complete checkout flow with order tracking  
+✅ **Toast Notifications**: Real-time user feedback  
+✅ **Responsive Design**: Mobile-optimized interface  
+✅ **Dark Mode**: Theme switching capability  
+✅ **File-based Storage**: JSON database for development  
+
+## Technology Stack
+
+- **Frontend**: Next.js 15 (App Router), React 19, TypeScript
+- **Backend**: Express.js with JSON file storage
+- **Styling**: Tailwind CSS with dark mode support
+- **Authentication**: NextAuth.js (Google OAuth)
+- **Icons**: Lucide React
+- **Notifications**: React Hot Toast
+- **Deployment**: Vercel (Frontend) + Railway/Render (Backend)
+
+## Development Notes
+
+- Uses Next.js 15 App Router for modern routing
+- Express.js server provides RESTful API with file-based storage
+- JSON file (`server/db.json`) serves as development database
+- TypeScript for type safety across the application
+- Component-based architecture for maintainability
+- Responsive design with mobile-first approach
