@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { orderService } from '../../../lib/postgres-database';
+import { wishlistService } from '../../../../lib/postgres-database';
 
 // CORS headers
 const corsHeaders = {
@@ -12,15 +12,18 @@ export async function OPTIONS() {
   return new NextResponse(null, { status: 200, headers: corsHeaders });
 }
 
-export async function POST(request: NextRequest) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ userId: string }> },
+) {
   try {
-    const body = await request.json();
-    const newOrder = await orderService.create(body);
-    return NextResponse.json(newOrder, { status: 201, headers: corsHeaders });
+    const { userId } = await params;
+    const wishlist = await wishlistService.getByUserId(userId);
+    return NextResponse.json(wishlist, { headers: corsHeaders });
   } catch (error) {
-    console.error('Error creating order:', error);
+    console.error('Error fetching wishlist:', error);
     return NextResponse.json(
-      { error: 'Failed to create order' },
+      { error: 'Failed to fetch wishlist' },
       { status: 500, headers: corsHeaders },
     );
   }

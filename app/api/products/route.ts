@@ -1,59 +1,48 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
-import path from 'path';
+import { productService } from '../../../lib/postgres-database';
 
-const DB_PATH = path.join(process.cwd(), 'server', 'db.json');
+// CORS headers
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-seller-id',
+};
 
-async function readDB() {
-  try {
-    const data = await fs.readFile(DB_PATH, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    console.error('Error reading database:', error);
-    return { products: [], orders: [], users: [] };
-  }
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 200, headers: corsHeaders });
 }
 
-async function writeDB(data: any) {
+export async function GET(request: NextRequest) {
   try {
-    await fs.writeFile(DB_PATH, JSON.stringify(data, null, 2));
-    return true;
-  } catch (error) {
-    console.error('Error writing database:', error);
-    return false;
-  }
-}
+    const { searchParams } = new URL(request.url);
+    const sortBy = searchParams.get('sortBy') as
+      | 'price-asc'
+      | 'price-desc'
+      | 'name'
+      | 'rating'
+      | null;
 
-export async function GET() {
-  try {
-    const db = await readDB();
-    return NextResponse.json(db.products);
+    const products = await productService.getAll(sortBy || undefined);
+    return NextResponse.json(products, { headers: corsHeaders });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch products' }, { status: 500 });
+    console.error('Error fetching products:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch products' },
+      { status: 500, headers: corsHeaders },
+    );
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const db = await readDB();
-    
-    const newProduct = {
-      id: Date.now().toString(),
-      ...body,
-      rating: 5.0,
-      createdAt: new Date().toISOString()
-    };
-    
-    db.products.push(newProduct);
-    const success = await writeDB(db);
-    
-    if (success) {
-      return NextResponse.json(newProduct, { status: 201 });
-    } else {
-      return NextResponse.json({ error: 'Failed to save product' }, { status: 500 });
-    }
+    const newProduct = await productService.create(body);
+    return NextResponse.json(newProduct, { status: 201, headers: corsHeaders });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to create product' }, { status: 500 });
+    console.error('Error creating product:', error);
+    return NextResponse.json(
+      { error: 'Failed to create product' },
+      { status: 500, headers: corsHeaders },
+    );
   }
 }
