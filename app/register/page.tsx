@@ -75,10 +75,19 @@ export default function RegisterPage() {
       if (response.ok) {
         router.push('/login?message=Registration successful! Please sign in.');
       } else {
-        setError(data.message || 'Registration failed');
+        if (response.status === 503 && data.setupUrl) {
+          setError(`${data.message} Click here to set up the database.`);
+          // You could also redirect to setup page automatically
+          // router.push(data.setupUrl);
+        } else {
+          setError(data.message || 'Registration failed');
+        }
       }
     } catch (err) {
-      setError('Network error occurred');
+      console.error('Registration request failed:', err);
+      setError(
+        'Network error occurred. Please check your connection and try again.',
+      );
     } finally {
       setIsLoading(false);
     }
