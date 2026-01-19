@@ -45,6 +45,12 @@ export async function PUT(
     const { id } = await params;
     const body = await request.json();
 
+    // console.log('PUT /api/products/[id] - Update request:', {
+    //   productId: id,
+    //   requestSellerId: body.sellerId,
+    //   requestSellerIdType: typeof body.sellerId
+    // });
+
     // Check if product exists and user owns it
     const existingProduct = await productService.getById(id);
     if (!existingProduct) {
@@ -54,9 +60,33 @@ export async function PUT(
       );
     }
 
+    // console.log('Existing product sellerId:', {
+    //   existingSellerId: existingProduct.sellerId,
+    //   existingSellerIdType: typeof existingProduct.sellerId,
+    //   providedSellerId: body.sellerId,
+    //   providedSellerIdType: typeof body.sellerId,
+    //   match: existingProduct.sellerId === body.sellerId,
+    //   isExistingNull: existingProduct.sellerId === null,
+    //   isExistingUndefined: existingProduct.sellerId === undefined,
+    //   isExistingEmpty: existingProduct.sellerId === ''
+    // });
+
     if (existingProduct.sellerId !== body.sellerId) {
+      // console.log('Authorization failed:', {
+      //   existing: existingProduct.sellerId,
+      //   provided: body.sellerId,
+      //   comparison: `"${existingProduct.sellerId}" !== "${body.sellerId}"`,
+      //   reason: existingProduct.sellerId === null ? 'Product has null sellerId - needs force fix' : 'sellerId mismatch'
+      // });
       return NextResponse.json(
-        { error: 'Unauthorized to update this product' },
+        { 
+          error: 'Unauthorized to update this product',
+          debug: {
+            productSellerId: existingProduct.sellerId,
+            userSellerId: body.sellerId,
+            reason: existingProduct.sellerId === null ? 'Product has null sellerId - use /test-debug to force fix' : 'sellerId mismatch'
+          }
+        },
         { status: 403, headers: corsHeaders },
       );
     }
@@ -88,6 +118,13 @@ export async function DELETE(
     const { id } = await params;
     const sellerId = request.headers.get('x-seller-id');
 
+    // console.log('DELETE /api/products/[id] - Delete request:', {
+    //   productId: id,
+    //   headerSellerId: sellerId,
+    //   headerSellerIdType: typeof sellerId,
+    //   allHeaders: Object.fromEntries(request.headers.entries())
+    // });
+
     // Check if product exists and user owns it
     const existingProduct = await productService.getById(id);
     if (!existingProduct) {
@@ -97,9 +134,33 @@ export async function DELETE(
       );
     }
 
+    // console.log('DELETE - Existing product sellerId:', {
+    //   existingSellerId: existingProduct.sellerId,
+    //   existingSellerIdType: typeof existingProduct.sellerId,
+    //   headerSellerId: sellerId,
+    //   headerSellerIdType: typeof sellerId,
+    //   match: existingProduct.sellerId === sellerId,
+    //   isExistingNull: existingProduct.sellerId === null,
+    //   isExistingUndefined: existingProduct.sellerId === undefined,
+    //   isExistingEmpty: existingProduct.sellerId === ''
+    // });
+
     if (existingProduct.sellerId !== sellerId) {
+      // console.log('DELETE Authorization failed:', {
+      //   existing: existingProduct.sellerId,
+      //   provided: sellerId,
+      //   comparison: `"${existingProduct.sellerId}" !== "${sellerId}"`,
+      //   reason: existingProduct.sellerId === null ? 'Product has null sellerId - needs force fix' : 'sellerId mismatch'
+      // });
       return NextResponse.json(
-        { error: 'Unauthorized to delete this product' },
+        { 
+          error: 'Unauthorized to delete this product',
+          debug: {
+            productSellerId: existingProduct.sellerId,
+            userSellerId: sellerId,
+            reason: existingProduct.sellerId === null ? 'Product has null sellerId - use /test-debug to force fix' : 'sellerId mismatch'
+          }
+        },
         { status: 403, headers: corsHeaders },
       );
     }

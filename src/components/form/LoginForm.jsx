@@ -157,7 +157,7 @@ export default function LoginForm() {
             <Input
               id='email'
               type='email'
-              placeholder='test@mail.com'
+              
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -169,7 +169,7 @@ export default function LoginForm() {
             <Input
               id='password'
               type='password'
-              placeholder='password123'
+              
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -193,7 +193,7 @@ export default function LoginForm() {
         </form>
 
         <div className='text-xs text-center text-muted-foreground'>
-          Demo credentials: test@mail.com / password123
+          Demo credentials: user@nexus.com / password123
         </div>
       </div>
     </div>

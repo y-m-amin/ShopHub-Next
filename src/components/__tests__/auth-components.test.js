@@ -49,7 +49,7 @@ describe('Authentication Components Unit Tests', () => {
         screen.getByRole('button', { name: /login/i }),
       ).toBeInTheDocument();
       expect(
-        screen.getByText('Demo credentials: test@mail.com / password123'),
+        screen.getByText('Demo credentials: user@nexus.com / password123'),
       ).toBeInTheDocument();
     });
 
@@ -82,7 +82,7 @@ describe('Authentication Components Unit Tests', () => {
       const passwordInput = screen.getByLabelText('Password');
       const submitButton = screen.getByRole('button', { name: /login/i });
 
-      fireEvent.change(emailInput, { target: { value: 'test@mail.com' } });
+      fireEvent.change(emailInput, { target: { value: 'user@nexus.com' } });
       fireEvent.change(passwordInput, { target: { value: 'password123' } });
       fireEvent.click(submitButton);
 
@@ -91,7 +91,7 @@ describe('Authentication Components Unit Tests', () => {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            email: 'test@mail.com',
+            email: 'user@nexus.com',
             password: 'password123',
           }),
         });
@@ -137,7 +137,7 @@ describe('Authentication Components Unit Tests', () => {
       const passwordInput = screen.getByLabelText('Password');
       const submitButton = screen.getByRole('button', { name: /login/i });
 
-      fireEvent.change(emailInput, { target: { value: 'test@mail.com' } });
+      fireEvent.change(emailInput, { target: { value: 'user@nexus.com' } });
       fireEvent.change(passwordInput, { target: { value: 'password123' } });
       fireEvent.click(submitButton);
 
@@ -148,10 +148,10 @@ describe('Authentication Components Unit Tests', () => {
 
   describe('Session Management Functions', () => {
     test('validateCredentials should return user for valid credentials', () => {
-      const user = validateCredentials('test@mail.com', 'password123');
+      const user = validateCredentials('user@nexus.com', 'password123');
 
       expect(user).not.toBeNull();
-      expect(user.email).toBe('test@mail.com');
+      expect(user.email).toBe('user@nexus.com');
       expect(user.id).toBe('1');
       expect(user.name).toBe('Test User');
       expect(user.role).toBe('user');

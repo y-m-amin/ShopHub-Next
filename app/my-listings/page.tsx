@@ -23,6 +23,7 @@ import { apiService } from '../../services/apiService';
 import { Product } from '../../types';
 import { MOCK_USER } from '../../constants';
 import toast from 'react-hot-toast';
+import ConfirmationModal from '../../components/ConfirmationModal';
 
 export default function MyListingsPage() {
   const { data: session } = useSession();
@@ -30,6 +31,15 @@ export default function MyListingsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [deleteModal, setDeleteModal] = useState<{
+    isOpen: boolean;
+    product: Product | null;
+    isLoading: boolean;
+  }>({
+    isOpen: false,
+    product: null,
+    isLoading: false
+  });
   const [editForm, setEditForm] = useState({
     name: '',
     description: '',
@@ -43,12 +53,15 @@ export default function MyListingsPage() {
 
   useEffect(() => {
     fetchMyProducts();
+    // console.log('My Listings - Current seller ID:', sellerId);
   }, [sellerId]);
 
   const fetchMyProducts = async () => {
     try {
       setLoading(true);
+      // console.log('Fetching products for seller:', sellerId);
       const data = await apiService.getSellerProducts(sellerId);
+      // console.log('Fetched products:', data);
       setProducts(data);
     } catch (error) {
       console.error('Error fetching products:', error);
@@ -59,6 +72,17 @@ export default function MyListingsPage() {
   };
 
   const handleEdit = (product: Product) => {
+    // Double-check that this product belongs to the current user
+    if (product.sellerId !== sellerId) {
+      // console.error('Security check failed:', {
+      //   productId: product.id,
+      //   productSellerId: product.sellerId,
+      //   currentSellerId: sellerId
+      // });
+      toast.error(`Cannot edit this product. It belongs to ${product.sellerId}, but you are ${sellerId}`);
+      return;
+    }
+    
     setEditingProduct(product);
     setEditForm({
       name: product.name,
@@ -74,13 +98,22 @@ export default function MyListingsPage() {
     e.preventDefault();
     if (!editingProduct) return;
 
+    const updateData = {
+      ...editForm,
+      price: parseFloat(editForm.price),
+      stock: parseInt(editForm.stock),
+      sellerId: sellerId
+    };
+
+    // console.log('Updating product:', {
+    //   productId: editingProduct.id,
+    //   currentSellerId: sellerId,
+    //   updateData: updateData,
+    //   originalProduct: editingProduct
+    // });
+
     try {
-      const updatedProduct = await apiService.updateProduct(editingProduct.id, {
-        ...editForm,
-        price: parseFloat(editForm.price),
-        stock: parseInt(editForm.stock),
-        sellerId: sellerId
-      });
+      const updatedProduct = await apiService.updateProduct(editingProduct.id, updateData);
 
       setProducts(products.map(p => p.id === editingProduct.id ? updatedProduct : p));
       setEditingProduct(null);
@@ -91,19 +124,33 @@ export default function MyListingsPage() {
     }
   };
 
-  const handleDelete = async (productId: string, productName: string) => {
-    if (!confirm(`Are you sure you want to delete "${productName}"? This action cannot be undone.`)) {
-      return;
-    }
+  const handleDelete = async (product: Product) => {
+    setDeleteModal({
+      isOpen: true,
+      product,
+      isLoading: false
+    });
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteModal.product) return;
+
+    setDeleteModal(prev => ({ ...prev, isLoading: true }));
 
     try {
-      await apiService.deleteProduct(productId, sellerId);
-      setProducts(products.filter(p => p.id !== productId));
-      toast.success('Product deleted successfully');
+      await apiService.deleteProduct(deleteModal.product.id, sellerId);
+      setProducts(products.filter(p => p.id !== deleteModal.product!.id));
+      toast.success(`"${deleteModal.product.name}" deleted successfully! 🗑️`);
+      setDeleteModal({ isOpen: false, product: null, isLoading: false });
     } catch (error) {
       console.error('Error deleting product:', error);
-      toast.error('Failed to delete product');
+      toast.error('Failed to delete product. Please try again.');
+      setDeleteModal(prev => ({ ...prev, isLoading: false }));
     }
+  };
+
+  const cancelDelete = () => {
+    setDeleteModal({ isOpen: false, product: null, isLoading: false });
   };
 
   const totalValue = products.reduce((sum, product) => sum + (product.price * product.stock), 0);
@@ -244,7 +291,7 @@ export default function MyListingsPage() {
                     <Edit3 size={16} className="mr-1" /> Edit
                   </button>
                   <button 
-                    onClick={() => handleDelete(product.id, product.name)}
+                    onClick={() => handleDelete(product)}
                     className="py-2 px-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center"
                   >
                     <Trash2 size={16} />
@@ -352,6 +399,19 @@ export default function MyListingsPage() {
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={deleteModal.isOpen}
+        onClose={cancelDelete}
+        onConfirm={confirmDelete}
+        title="Delete Product"
+        message={`Are you sure you want to delete "${deleteModal.product?.name}"? This action cannot be undone and will permanently remove the product from your listings.`}
+        confirmText="Delete Product"
+        cancelText="Keep Product"
+        type="danger"
+        isLoading={deleteModal.isLoading}
+      />
     </div>
   );
 }

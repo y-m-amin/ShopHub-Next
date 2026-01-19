@@ -81,6 +81,18 @@ class ApiService {
   async healthCheck(): Promise<{ status: string; timestamp: string }> {
     return this.request<{ status: string; timestamp: string }>('/health');
   }
+
+  // Wishlist
+  async getWishlist(userId: string): Promise<any[]> {
+    return this.request<any[]>(`/wishlist/${userId}`);
+  }
+
+  async toggleWishlist(userId: string, productId: string): Promise<{ action: string }> {
+    return this.request<{ action: string }>('/wishlist', {
+      method: 'POST',
+      body: JSON.stringify({ userId, productId, action: 'toggle' }),
+    });
+  }
 }
 
 export const apiService = new ApiService();

@@ -23,7 +23,7 @@ export async function requireAuth(redirectTo = '/login') {
   // Return mock user data for authenticated sessions
   return {
     id: '1',
-    email: 'test@mail.com',
+    email: 'user@nexus.com',
     name: 'Test User',
     role: 'user',
   };
@@ -49,7 +49,7 @@ export async function getServerUser() {
 
     return {
       id: '1',
-      email: 'test@mail.com',
+      email: 'user@nexus.com',
       name: 'Test User',
       role: 'user',
     };

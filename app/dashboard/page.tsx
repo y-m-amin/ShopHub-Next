@@ -19,6 +19,12 @@ import { Order, Product } from '../../types';
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
 
+// Utility function to safely convert to number and format
+const formatPrice = (value: number | string): string => {
+  const numValue = typeof value === 'number' ? value : parseFloat(String(value));
+  return numValue.toFixed(2);
+};
+
 // ProfileSettings Component
 function ProfileSettings() {
   const { data: session, update } = useSession();
@@ -225,6 +231,7 @@ export default function DashboardPage() {
   );
   const [orders, setOrders] = useState<Order[]>([]);
   const [wishlistProducts, setWishlistProducts] = useState<Product[]>([]);
+  const [wishlistLoading, setWishlistLoading] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -255,11 +262,60 @@ export default function DashboardPage() {
         );
       }
 
-      const wishlist = dbService.getWishlist();
-      const products = dbService.getProducts();
-      setWishlistProducts(
-        products.filter((p) => wishlist.some((w) => w.productId === p.id)),
-      );
+      // Fetch wishlist
+      setWishlistLoading(true);
+      try {
+        // Try to fetch wishlist from API
+        const wishlistData = await apiService.getWishlist(userId);
+        console.log('Wishlist from API:', wishlistData);
+        console.log('First wishlist item:', wishlistData[0]);
+        
+        if (wishlistData && wishlistData.length > 0) {
+          // Wishlist data now always includes product info with explicit productId
+          const mappedProducts = wishlistData.map((item: any) => {
+            console.log('Mapping wishlist item:', item);
+            return {
+              id: item.productId, // Now guaranteed to exist
+              name: item.name,
+              price: parseFloat(item.price),
+              image: item.image,
+              verified: item.verified,
+              description: item.description || '',
+              category: item.category || '',
+              rating: 5,
+              stock: 0,
+              sellerId: '',
+              createdAt: new Date().toISOString()
+            };
+          });
+          console.log('Mapped wishlist products:', mappedProducts);
+          setWishlistProducts(mappedProducts);
+        } else {
+          setWishlistProducts([]);
+        }
+      } catch (error) {
+        console.error('Error fetching wishlist from API:', error);
+        // Fallback to localStorage
+        const wishlist = dbService.getWishlist();
+        const products = dbService.getProducts();
+        setWishlistProducts(
+          products.filter((p) => wishlist.some((w) => w.productId === p.id)),
+        );
+      } finally {
+        setWishlistLoading(false);
+      }
+    }
+  };
+
+  const removeFromWishlist = async (productId: string) => {
+    const userId = session?.user?.email || MOCK_USER.email;
+    try {
+      console.log('Removing from wishlist:', { userId, productId });
+      await apiService.toggleWishlist(userId, productId);
+      // Refresh wishlist
+      fetchData();
+    } catch (error) {
+      console.error('Error removing from wishlist:', error);
     }
   };
 
@@ -362,7 +418,7 @@ export default function DashboardPage() {
                           Total
                         </span>
                         <span className='text-lg font-bold text-primary-600'>
-                          ${o.total.toFixed(2)}
+                          ${formatPrice(o.total)}
                         </span>
                       </div>
                     </div>
@@ -381,7 +437,7 @@ export default function DashboardPage() {
                             </span>
                           </div>
                           <span className='dark:text-zinc-300 font-medium'>
-                            ${(item.price * item.quantity).toFixed(2)}
+                            ${formatPrice(item.price * item.quantity)}
                           </span>
                         </div>
                       ))}
@@ -429,41 +485,62 @@ export default function DashboardPage() {
               <h2 className='text-2xl font-bold dark:text-white flex items-center'>
                 <Heart className='mr-3 text-red-500' /> Wishlist
               </h2>
-              {wishlistProducts.length > 0 ? (
+              {wishlistLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+                  <span className="ml-3 text-zinc-500">Loading wishlist...</span>
+                </div>
+              ) : wishlistProducts.length > 0 ? (
                 <div className='grid grid-cols-1 sm:grid-cols-2 gap-6'>
                   {wishlistProducts.map((p) => (
                     <div
                       key={p.id}
-                      className='bg-white dark:bg-zinc-900 p-4 rounded-2xl border border-zinc-200 dark:border-zinc-800 flex gap-4 shadow-sm'
+                      className='bg-white dark:bg-zinc-900 p-4 rounded-2xl border border-zinc-200 dark:border-zinc-800 flex gap-4 shadow-sm hover:shadow-md transition-shadow'
                     >
                       <img
                         src={p.image}
                         className='w-20 h-20 rounded-xl object-cover'
                         alt={p.name}
                       />
-                      <div>
+                      <div className="flex-1">
                         <h4 className='font-bold dark:text-white text-sm line-clamp-1'>
                           {p.name}
                         </h4>
                         <p className='text-primary-600 font-bold text-sm mb-2'>
                           ${p.price}
                         </p>
-                        <button
-                          onClick={() =>
-                            (window.location.href = `/items/${p.id}`)
-                          }
-                          className='text-xs font-bold text-zinc-500 hover:text-primary-600'
-                        >
-                          View Product
-                        </button>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() =>
+                              (window.location.href = `/items/${p.id}`)
+                            }
+                            className='text-xs font-bold text-zinc-500 hover:text-primary-600 transition-colors'
+                          >
+                            View Product
+                          </button>
+                          <button
+                            onClick={() => removeFromWishlist(p.id)}
+                            className='text-xs font-bold text-red-500 hover:text-red-600 transition-colors'
+                          >
+                            Remove
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className='text-zinc-500 py-12 text-center'>
-                  Your wishlist is empty.
-                </p>
+                <div className='text-center py-20 bg-zinc-50 dark:bg-zinc-900/30 rounded-3xl border border-dashed border-zinc-200 dark:border-zinc-800'>
+                  <Heart size={48} className='mx-auto text-zinc-300 mb-4' />
+                  <h3 className='text-xl font-bold dark:text-white mb-2'>Your wishlist is empty</h3>
+                  <p className='text-zinc-500 mb-6'>Save items you love for later by adding them to your wishlist.</p>
+                  <Link
+                    href='/items'
+                    className='inline-flex items-center px-6 py-3 bg-primary-600 text-white rounded-xl font-medium hover:bg-primary-700 transition-colors'
+                  >
+                    Browse Products
+                  </Link>
+                </div>
               )}
             </div>
           )}

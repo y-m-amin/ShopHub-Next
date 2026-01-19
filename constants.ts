@@ -77,7 +77,7 @@ export const INITIAL_PRODUCTS: Product[] = [
 ];
 
 export const MOCK_USER = {
-  email: 'admin@nexus.com',
+  email: 'user@nexus.com',
   password: 'password123',
   name: 'Alex Johnson',
   id: 'user_123'

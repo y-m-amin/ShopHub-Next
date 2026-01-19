@@ -3,13 +3,17 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { Star, Shield, Truck, RefreshCw, ShoppingCart, Heart, ArrowLeft, Check } from 'lucide-react';
 import { dbService } from '../../../services/dbService';
 import { apiService } from '../../../services/apiService';
 import { Product } from '../../../types';
+import { MOCK_USER } from '../../../constants';
+import toast from 'react-hot-toast';
 
 export default function ItemDetailsPage() {
+  const { data: session } = useSession();
   const params = useParams();
   const router = useRouter();
   const id = params.id as string;
@@ -17,6 +21,9 @@ export default function ItemDetailsPage() {
   const [isInWishlist, setIsInWishlist] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [isAdded, setIsAdded] = useState(false);
+  const [wishlistLoading, setWishlistLoading] = useState(false);
+
+  const userId = session?.user?.email || MOCK_USER.email;
 
   useEffect(() => {
     if (id) {
@@ -28,8 +35,17 @@ export default function ItemDetailsPage() {
     try {
       const data = await apiService.getProduct(id);
       setProduct(data);
-      const wishlist = dbService.getWishlist();
-      setIsInWishlist(wishlist.some(item => item.productId === id));
+      
+      // Check if product is in user's wishlist
+      try {
+        const wishlistData = await apiService.getWishlist(userId);
+        setIsInWishlist(wishlistData.some(item => item.productId === id));
+      } catch (error) {
+        console.error('Error fetching wishlist:', error);
+        // Fallback to localStorage
+        const wishlist = dbService.getWishlist();
+        setIsInWishlist(wishlist.some(item => item.productId === id));
+      }
     } catch (error) {
       console.error('Error fetching product:', error);
       // Fallback to localStorage
@@ -44,10 +60,27 @@ export default function ItemDetailsPage() {
     }
   };
 
-  const handleToggleWishlist = () => {
-    if (product) {
+  const handleToggleWishlist = async () => {
+    if (!product) return;
+    
+    setWishlistLoading(true);
+    try {
+      const result = await apiService.toggleWishlist(userId, product.id);
+      setIsInWishlist(result.action === 'added');
+      
+      if (result.action === 'added') {
+        toast.success(`Added "${product.name}" to wishlist! ❤️`);
+      } else {
+        toast.success(`Removed "${product.name}" from wishlist`);
+      }
+    } catch (error) {
+      console.error('Error toggling wishlist:', error);
+      // Fallback to localStorage
       dbService.toggleWishlist(product.id);
       setIsInWishlist(!isInWishlist);
+      toast.error('Using offline mode. Changes may not sync across devices.');
+    } finally {
+      setWishlistLoading(false);
     }
   };
 
@@ -108,8 +141,16 @@ export default function ItemDetailsPage() {
               {isAdded ? <Check className="mr-2" /> : <ShoppingCart size={20} className="mr-2" />}
               {isAdded ? 'Redirecting...' : 'Buy Now'}
             </button>
-            <button onClick={handleToggleWishlist} className={`p-4 rounded-2xl border-2 transition-colors ${isInWishlist ? 'border-red-500 text-red-500' : 'border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-300'}`}>
-              <Heart size={24} fill={isInWishlist ? "currentColor" : "none"} />
+            <button 
+              onClick={handleToggleWishlist} 
+              disabled={wishlistLoading}
+              className={`p-4 rounded-2xl border-2 transition-colors disabled:opacity-50 ${isInWishlist ? 'border-red-500 text-red-500' : 'border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-300'}`}
+            >
+              {wishlistLoading ? (
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-current"></div>
+              ) : (
+                <Heart size={24} fill={isInWishlist ? "currentColor" : "none"} />
+              )}
             </button>
           </div>
           

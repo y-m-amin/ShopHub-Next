@@ -1,0 +1,22 @@
+User-agent: *
+Allow: /
+
+# Allow crawling of product pages
+Allow: /items/
+Allow: /products/
+
+# Allow crawling of main pages
+Allow: /login
+Allow: /register
+Allow: /dashboard
+
+# Disallow admin and debug pages
+Disallow: /api/
+Disallow: /test-debug/
+Disallow: /setup/
+
+# Disallow user-specific pages
+Disallow: /my-listings
+Disallow: /checkout
+
+Sitemap: https://nexus-techhub.vercel.app/sitemap.xml

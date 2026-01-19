@@ -36,6 +36,7 @@ function CheckoutContent() {
   const [qty, setQty] = useState(1);
   const [done, setDone] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [step, setStep] = useState<'details' | 'payment' | 'review'>('details');
   
   // Form states
@@ -69,17 +70,46 @@ function CheckoutContent() {
   useEffect(() => {
     const id = searchParams.get('productId');
     const q = parseInt(searchParams.get('qty') || '1');
+    console.log('Checkout page loaded with params:', { id, q });
+    console.log('Full search params:', searchParams.toString());
     if (id) {
-      const p = dbService.getProductById(id);
-      if (p) { 
-        setProduct(p); 
-        setQty(q); 
-      }
+      fetchProduct(id, q);
+    } else {
+      console.error('No product ID found in URL params');
+      toast.error('No product specified');
+      router.push('/items');
     }
   }, [searchParams]);
 
+  const fetchProduct = async (id: string, q: number) => {
+    setInitialLoading(true);
+    try {
+      console.log('Fetching product with ID:', id);
+      // Try API service first
+      const data = await apiService.getProduct(id);
+      console.log('Product fetched from API:', data);
+      setProduct(data);
+      setQty(q);
+    } catch (error) {
+      console.error('Error fetching product from API:', error);
+      // Fallback to localStorage
+      const p = dbService.getProductById(id);
+      console.log('Product from localStorage:', p);
+      if (p) { 
+        setProduct(p); 
+        setQty(q); 
+      } else {
+        console.error('Product not found in localStorage either');
+        toast.error('Product not found');
+        router.push('/items');
+      }
+    } finally {
+      setInitialLoading(false);
+    }
+  };
+
   const selectedDelivery = deliveryOptions.find(d => d.id === deliveryOption)!;
-  const subtotal = product ? product.price * qty : 0;
+  const subtotal = product ? parseFloat(product.price.toString()) * qty : 0;
   const tax = subtotal * 0.0875; // 8.75% tax
   const total = subtotal + selectedDelivery.price + tax;
 
@@ -93,8 +123,8 @@ function CheckoutContent() {
       if (product) {
         const orderData = {
           userId: userId,
-          items: [{ productId: product.id, quantity: qty, price: product.price, name: product.name }],
-          total: total,
+          items: [{ productId: product.id, quantity: qty, price: parseFloat(product.price.toString()), name: product.name }],
+          total: parseFloat(total.toFixed(2)),
           status: 'pending' as const
         };
 
@@ -110,9 +140,12 @@ function CheckoutContent() {
     }
   };
 
-  if (!product) return (
+  if (initialLoading || !product) return (
     <div className="min-h-screen flex items-center justify-center dark:text-white">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
+        <p className="text-zinc-600 dark:text-zinc-400">Loading product details...</p>
+      </div>
     </div>
   );
 

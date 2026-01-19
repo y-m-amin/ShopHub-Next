@@ -2,11 +2,14 @@
 
 import { ArrowUpDown, ChevronDown, Search } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { useSession } from 'next-auth/react';
 import toast from 'react-hot-toast';
 import ProductCard from '../../components/ProductCard';
 import Pagination from '../../components/Pagination';
 import { dbService } from '../../services/dbService';
+import { apiService } from '../../services/apiService';
 import { Product } from '../../types';
+import { MOCK_USER } from '../../constants';
 
 interface PaginationData {
   currentPage: number;
@@ -23,6 +26,7 @@ interface ProductsResponse {
 }
 
 export default function ItemsPage() {
+  const { data: session } = useSession();
   const [products, setProducts] = useState<Product[]>([]);
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
@@ -33,6 +37,9 @@ export default function ItemsPage() {
   >('');
   const [wishlist, setWishlist] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const [wishlistLoading, setWishlistLoading] = useState(false);
+  
+  const userId = session?.user?.email || MOCK_USER.email;
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -48,9 +55,20 @@ export default function ItemsPage() {
 
   useEffect(() => {
     fetchProducts();
-    const w = dbService.getWishlist();
-    setWishlist(w.map((i) => i.productId));
+    fetchWishlist();
   }, []);
+
+  const fetchWishlist = async () => {
+    try {
+      const wishlistData = await apiService.getWishlist(userId);
+      setWishlist(wishlistData.map((item) => item.productId));
+    } catch (error) {
+      console.error('Error fetching wishlist:', error);
+      // Fallback to localStorage
+      const w = dbService.getWishlist();
+      setWishlist(w.map((i) => i.productId));
+    }
+  };
 
   const fetchProducts = async (sort?: string, page = 1, limit = productsPerPage) => {
     try {
@@ -142,10 +160,31 @@ export default function ItemsPage() {
     setCurrentPage(1);
   }, [search, category, productsPerPage]);
 
-  const handleToggleWishlist = (id: string) => {
-    dbService.toggleWishlist(id);
-    const w = dbService.getWishlist();
-    setWishlist(w.map((i) => i.productId));
+  const handleToggleWishlist = async (id: string) => {
+    setWishlistLoading(true);
+    try {
+      const result = await apiService.toggleWishlist(userId, id);
+      
+      // Update local wishlist state
+      if (result.action === 'added') {
+        setWishlist(prev => [...prev, id]);
+        const product = allProducts.find(p => p.id === id);
+        toast.success(`Added "${product?.name}" to wishlist! ❤️`);
+      } else {
+        setWishlist(prev => prev.filter(productId => productId !== id));
+        const product = allProducts.find(p => p.id === id);
+        toast.success(`Removed "${product?.name}" from wishlist`);
+      }
+    } catch (error) {
+      console.error('Error toggling wishlist:', error);
+      // Fallback to localStorage
+      dbService.toggleWishlist(id);
+      const w = dbService.getWishlist();
+      setWishlist(w.map((i) => i.productId));
+      toast.error('Using offline mode. Changes may not sync across devices.');
+    } finally {
+      setWishlistLoading(false);
+    }
   };
 
   const handlePageChange = (page: number) => {

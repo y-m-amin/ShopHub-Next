@@ -18,7 +18,17 @@ export async function GET(
 ) {
   try {
     const { sellerId } = await params;
+    console.log('GET /api/products/seller/[sellerId] - Request for sellerId:', sellerId);
+    
     const products = await productService.getBySellerId(sellerId);
+    
+    console.log('Seller products found:', {
+      sellerId,
+      count: products.length,
+      productIds: products.map(p => p.id),
+      productSellerIds: products.map(p => ({ id: p.id, sellerId: p.sellerId }))
+    });
+    
     return NextResponse.json(products, { headers: corsHeaders });
   } catch (error) {
     console.error('Error fetching seller products:', error);

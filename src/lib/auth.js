@@ -2,14 +2,14 @@ import { cookies } from 'next/headers';
 
 // Hardcoded credentials for mock authentication
 const MOCK_CREDENTIALS = {
-  email: 'test@mail.com',
+  email: 'user@nexus.com',
   password: 'password123',
 };
 
 // Mock user data
 const MOCK_USER = {
   id: '1',
-  email: 'test@mail.com',
+  email: 'user@nexus.com',
   name: 'Test User',
   role: 'user',
 };

@@ -212,10 +212,10 @@ export async function initializeTables() {
         image TEXT,
         rating DECIMAL DEFAULT 5.0,
         stock INTEGER DEFAULT 0,
-        sellerId TEXT NOT NULL,
+        sellerid TEXT NOT NULL,
         verified BOOLEAN DEFAULT false,
-        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        createdat TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updatedat TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `;
 
@@ -223,7 +223,7 @@ export async function initializeTables() {
     await sql`
       CREATE TABLE IF NOT EXISTS orders (
         id TEXT PRIMARY KEY,
-        userId TEXT NOT NULL,
+        userid TEXT NOT NULL,
         items JSONB NOT NULL,
         total DECIMAL NOT NULL,
         status TEXT DEFAULT 'pending',
@@ -241,8 +241,8 @@ export async function initializeTables() {
         phone TEXT,
         image TEXT,
         provider TEXT DEFAULT 'credentials',
-        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        createdat TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updatedat TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `;
 
@@ -250,14 +250,14 @@ export async function initializeTables() {
     await sql`
       CREATE TABLE IF NOT EXISTS wishlists (
         id SERIAL PRIMARY KEY,
-        userId TEXT NOT NULL,
-        productId TEXT NOT NULL,
-        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        UNIQUE(userId, productId)
+        userid TEXT NOT NULL,
+        productid TEXT NOT NULL,
+        createdat TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(userid, productid)
       )
     `;
 
-    console.log('Database tables initialized successfully');
+    // console.log('Database tables initialized successfully');
   } catch (error) {
     console.error('Error initializing database tables:', error);
     throw error;
@@ -277,16 +277,16 @@ export async function seedDatabase(force = false) {
     const { rows: existingProducts } =
       await sql`SELECT COUNT(*) as count FROM products`;
     if (existingProducts[0].count > 0 && !force) {
-      console.log('Database already seeded');
+      // console.log('Database already seeded');
       return;
     }
 
     if (force && existingProducts[0].count > 0) {
-      console.log('Force re-seeding: Clearing existing products...');
+      // console.log('Force re-seeding: Clearing existing products...');
       await sql`DELETE FROM products`;
     }
 
-    console.log('Seeding database with initial products...');
+    // console.log('Seeding database with initial products...');
 
     // Insert all fallback products plus additional ones
     const allProducts = [
@@ -313,10 +313,84 @@ export async function seedDatabase(force = false) {
         price: 279.99,
         category: 'Audio',
         image:
-          'https://m.media-amazon.com/images/I/71Iq3JTgVeL._AC_UY327_FMwebp_QL65_.jpg',
+          'https://www.applegadgetsbd.com/_next/image?url=https%3A%2F%2Fadminapi.applegadgetsbd.com%2Fstorage%2Fmedia%2Flarge%2FMarshall-Acton-III-Portable-Wireless-Speaker-cream-1560.jpg&w=3840&q=100',
         rating: 4.6,
         stock: 22,
         sellerId: 'marshall@audio.com',
+        verified: false,
+      },
+      // Add some products for the demo user (user@nexus.com)
+      {
+        id: '15',
+        name: 'Wireless Charging Pad',
+        description: 'Fast wireless charging pad compatible with all Qi-enabled devices. Sleek design with LED indicator.',
+        price: 29.99,
+        category: 'Electronics',
+        image: 'https://assets.gadgetandgear.com/upload/product/20230309_1678362137_709452.jpeg',
+        rating: 4.3,
+        stock: 50,
+        sellerId: 'user@nexus.com',
+        verified: false,
+      },
+      {
+        id: '16',
+        name: 'Bluetooth Mechanical Keyboard',
+        description: 'Premium mechanical keyboard with RGB backlighting and wireless connectivity. Perfect for gaming and productivity.',
+        price: 149.99,
+        category: 'Electronics',
+        image: 'https://m.media-amazon.com/images/I/71jG+e7roXL._AC_SL1500_.jpg',
+        rating: 4.7,
+        stock: 25,
+        sellerId: 'user@nexus.com',
+        verified: false,
+      },
+      {
+        id: '17',
+        name: 'Smart Water Bottle',
+        description: 'Insulated smart water bottle that tracks hydration and maintains temperature for 24 hours.',
+        price: 79.99,
+        category: 'Fitness',
+        image: 'https://www.waterh.com/cdn/shop/files/WaterH_Boost_32oz_Smart_Water_Bottle_App_Connected_Insulated-Black.jpg?v=1767694977&width=1946',
+        rating: 4.4,
+        stock: 35,
+        sellerId: 'user@nexus.com',
+        verified: false,
+      },
+      // Add products for ymohammad18@gmail.com (current logged in user)
+      {
+        id: '18',
+        name: 'Portable SSD 1TB',
+        description: 'Ultra-fast portable SSD with USB-C connectivity. Perfect for content creators and professionals.',
+        price: 129.99,
+        category: 'Electronics',
+        image: 'https://cdn.shopz.com.bd/2024/12/Sandisk-1TB-Extreme-V2-Portable-SSD-SDSSDE61-1T00-G25-1.jpg',
+        rating: 4.6,
+        stock: 40,
+        sellerId: 'ymohammad18@gmail.com',
+        verified: true,
+      },
+      {
+        id: '19',
+        name: 'Wireless Mouse Pro',
+        description: 'Ergonomic wireless mouse with precision tracking and long battery life. Great for productivity.',
+        price: 59.99,
+        category: 'Electronics',
+        image: 'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=500&h=500&fit=crop',
+        rating: 4.5,
+        stock: 60,
+        sellerId: 'ymohammad18@gmail.com',
+        verified: false,
+      },
+      {
+        id: '20',
+        name: 'USB-C Hub 7-in-1',
+        description: 'Compact USB-C hub with HDMI, USB 3.0, SD card reader, and PD charging. Essential for laptops.',
+        price: 39.99,
+        category: 'Electronics',
+        image: 'https://extremegadgets.com.bd/wp-content/uploads/2024/05/61rns8Cs0nL._AC_SL1500_.jpg',
+        rating: 4.3,
+        stock: 75,
+        sellerId: 'ymohammad18@gmail.com',
         verified: false,
       },
     ];
@@ -324,7 +398,7 @@ export async function seedDatabase(force = false) {
     // Insert products
     for (const product of allProducts) {
       await sql`
-        INSERT INTO products (id, name, description, price, category, image, rating, stock, sellerId, verified)
+        INSERT INTO products (id, name, description, price, category, image, rating, stock, sellerid, verified)
         VALUES (${product.id}, ${product.name}, ${product.description}, ${product.price}, 
                 ${product.category}, ${product.image}, ${product.rating}, ${product.stock}, 
                 ${product.sellerId}, ${product.verified})
@@ -332,11 +406,69 @@ export async function seedDatabase(force = false) {
       `;
     }
 
-    console.log(
-      'Database seeded successfully with',
-      allProducts.length,
-      'products',
-    );
+    // console.log(
+    //   'Database seeded successfully with',
+    //   allProducts.length,
+    //   'products (including 3 for user@nexus.com and 3 for ymohammad18@gmail.com)',
+    // );
+
+    // Fix any products with null sellerId (cleanup existing data)
+    // console.log('Fixing products with null sellerId...');
+    
+    // First, update all null sellerIds to admin@nexus.com
+    const { rowCount: adminUpdated } = await sql`
+      UPDATE products 
+      SET sellerid = 'admin@nexus.com' 
+      WHERE sellerid IS NULL OR sellerid = ''
+    `;
+    // console.log(`Updated ${adminUpdated} products to admin@nexus.com`);
+    
+    // Then, specifically assign the new products to the correct users
+    await sql`
+      UPDATE products 
+      SET sellerid = 'user@nexus.com' 
+      WHERE id IN ('15', '16', '17')
+    `;
+    
+    await sql`
+      UPDATE products 
+      SET sellerid = 'ymohammad18@gmail.com' 
+      WHERE id IN ('18', '19', '20')
+    `;
+    
+    // Verify the fix
+    const { rows: sellerCheck } = await sql`
+      SELECT sellerid, COUNT(*) as count 
+      FROM products 
+      GROUP BY sellerid 
+      ORDER BY count DESC
+    `;
+    
+    // console.log('Seller distribution after fix:', sellerCheck);
+    
+    const { rows: nullCheck } = await sql`
+      SELECT COUNT(*) as count FROM products WHERE sellerid IS NULL OR sellerid = ''
+    `;
+    
+    // console.log(`Products with null sellerId after fix: ${nullCheck[0]?.count || 0}`);
+
+    // Add some sample wishlist data for the demo user
+    // console.log('Adding sample wishlist data...');
+    const sampleWishlistItems = [
+      { userId: 'user@nexus.com', productId: '1' },
+      { userId: 'user@nexus.com', productId: '5' },
+      { userId: 'user@nexus.com', productId: '8' },
+    ];
+
+    for (const item of sampleWishlistItems) {
+      await sql`
+        INSERT INTO wishlists (userid, productid)
+        VALUES (${item.userId}, ${item.productId})
+        ON CONFLICT (userid, productid) DO NOTHING
+      `;
+    }
+
+    // console.log('Sample wishlist data added successfully');
   } catch (error) {
     console.error('Error seeding database:', error);
     throw error;
@@ -370,7 +502,7 @@ export const productService = {
       return products;
     }
 
-    let orderClause = 'ORDER BY createdAt DESC';
+    let orderClause = 'ORDER BY createdat DESC';
 
     switch (sortBy) {
       case 'price-asc':
@@ -388,7 +520,16 @@ export const productService = {
     }
 
     const { rows } = await sql.query(`SELECT * FROM products ${orderClause}`);
-    return rows as Product[];
+    // Convert numeric fields from strings to numbers and map column names
+    return rows.map((product: any) => ({
+      ...product,
+      sellerId: product.sellerid, // Map lowercase to camelCase
+      createdAt: product.createdat, // Map lowercase to camelCase
+      updatedAt: product.updatedat, // Map lowercase to camelCase
+      price: parseFloat(product.price),
+      rating: parseFloat(product.rating),
+      stock: parseInt(product.stock),
+    })) as Product[];
   },
 
   async getById(id: string): Promise<Product | null> {
@@ -396,8 +537,33 @@ export const productService = {
       return fallbackProducts.find((p) => p.id === id) || null;
     }
 
+    // console.log('getById called for product:', id);
     const { rows } = await sql`SELECT * FROM products WHERE id = ${id}`;
-    return (rows[0] as Product) || null;
+    if (!rows[0]) {
+      // console.log('getById: Product not found');
+      return null;
+    }
+    
+    // Convert numeric fields from strings to numbers and map column names
+    const product = rows[0] as any;
+    const result = {
+      ...product,
+      sellerId: product.sellerid, // Map lowercase to camelCase
+      createdAt: product.createdat, // Map lowercase to camelCase
+      updatedAt: product.updatedat, // Map lowercase to camelCase
+      price: parseFloat(product.price),
+      rating: parseFloat(product.rating),
+      stock: parseInt(product.stock),
+    } as Product;
+    
+    // console.log('getById result:', {
+    //   id: result.id,
+    //   name: result.name,
+    //   sellerId: result.sellerId,
+    //   sellerIdType: typeof result.sellerId
+    // });
+    
+    return result;
   },
 
   async getBySellerId(sellerId: string): Promise<Product[]> {
@@ -405,9 +571,40 @@ export const productService = {
       return fallbackProducts.filter((p) => p.sellerId === sellerId);
     }
 
+    // console.log('getBySellerId called with:', sellerId);
     const { rows } =
-      await sql`SELECT * FROM products WHERE sellerId = ${sellerId} ORDER BY createdAt DESC`;
-    return rows as Product[];
+      await sql`SELECT * FROM products WHERE sellerid = ${sellerId} ORDER BY createdat DESC`;
+    
+    // console.log('getBySellerId raw results:', {
+    //   sellerId,
+    //   rowCount: rows.length,
+    //   sampleRow: rows[0] ? {
+    //     id: rows[0].id,
+    //     name: rows[0].name,
+    //     sellerid: rows[0].sellerid,
+    //     selleridType: typeof rows[0].sellerid
+    //   } : null
+    // });
+    
+    // Convert numeric fields from strings to numbers and map column names
+    const products = rows.map((product: any) => ({
+      ...product,
+      sellerId: product.sellerid, // Map lowercase to camelCase
+      createdAt: product.createdat, // Map lowercase to camelCase
+      updatedAt: product.updatedat, // Map lowercase to camelCase
+      price: parseFloat(product.price),
+      rating: parseFloat(product.rating),
+      stock: parseInt(product.stock),
+    })) as Product[];
+    
+    // console.log('getBySellerId processed results:', {
+    //   sellerId,
+    //   productCount: products.length,
+    //   productIds: products.map(p => p.id),
+    //   productSellerIds: products.map(p => ({ id: p.id, sellerId: p.sellerId }))
+    // });
+    
+    return products;
   },
 
   async create(
@@ -422,14 +619,20 @@ export const productService = {
     const id = Date.now().toString();
 
     const { rows } = await sql`
-      INSERT INTO products (id, name, description, price, category, image, rating, stock, sellerId, verified)
+      INSERT INTO products (id, name, description, price, category, image, rating, stock, sellerid, verified)
       VALUES (${id}, ${product.name}, ${product.description}, ${product.price}, 
               ${product.category}, ${product.image}, 5.0, ${product.stock}, 
               ${product.sellerId}, ${(product as any).verified || false})
       RETURNING *
     `;
 
-    return rows[0] as Product;
+    const result = rows[0] as any;
+    return {
+      ...result,
+      sellerId: result.sellerid,
+      createdAt: result.createdat,
+      updatedAt: result.updatedat,
+    } as Product;
   },
 
   async update(id: string, updates: Partial<Product>): Promise<Product | null> {
@@ -444,21 +647,37 @@ export const productService = {
     if (fields.length === 0) return this.getById(id);
 
     const setClause = fields
-      .map((field, index) => `${field} = $${index + 2}`)
+      .map((field, index) => {
+        const fieldMap: { [key: string]: string } = {
+          sellerId: 'sellerid',
+          createdAt: 'createdat',
+          updatedAt: 'updatedat'
+        };
+        const dbColumn = fieldMap[field] || field;
+        return `${dbColumn} = $${index + 2}`;
+      })
       .join(', ');
     const values = [id, ...fields.map((field) => (updates as any)[field])];
 
     const { rows } = await sql.query(
       `
       UPDATE products 
-      SET ${setClause}, updatedAt = CURRENT_TIMESTAMP
+      SET ${setClause}, updatedat = CURRENT_TIMESTAMP
       WHERE id = $1
       RETURNING *
     `,
       values,
     );
 
-    return (rows[0] as Product) || null;
+    if (!rows[0]) return null;
+    
+    const result = rows[0] as any;
+    return {
+      ...result,
+      sellerId: result.sellerid,
+      createdAt: result.createdat,
+      updatedAt: result.updatedat,
+    } as Product;
   },
 
   async delete(id: string): Promise<boolean> {
@@ -481,8 +700,14 @@ export const orderService = {
     }
 
     const { rows } =
-      await sql`SELECT * FROM orders WHERE userId = ${userId} ORDER BY date DESC`;
-    return rows as Order[];
+      await sql`SELECT * FROM orders WHERE userid = ${userId} ORDER BY date DESC`;
+    // Convert numeric fields and parse JSON items
+    return rows.map((order: any) => ({
+      ...order,
+      userId: order.userid, // Map lowercase to camelCase
+      total: parseFloat(order.total),
+      items: typeof order.items === 'string' ? JSON.parse(order.items) : order.items,
+    })) as Order[];
   },
 
   async create(order: Omit<Order, 'id' | 'date'>): Promise<Order> {
@@ -501,7 +726,7 @@ export const orderService = {
     const id = `ORD-${Date.now()}`;
 
     const { rows } = await sql`
-      INSERT INTO orders (id, userId, items, total, status)
+      INSERT INTO orders (id, userid, items, total, status)
       VALUES (${id}, ${order.userId}, ${JSON.stringify(order.items)}, ${order.total}, ${order.status || 'pending'})
       RETURNING *
     `;
@@ -509,6 +734,8 @@ export const orderService = {
     const result = rows[0] as any;
     return {
       ...result,
+      userId: result.userid, // Map lowercase to camelCase
+      total: parseFloat(result.total),
       items:
         typeof result.items === 'string'
           ? JSON.parse(result.items)
@@ -524,14 +751,34 @@ export const wishlistService = {
       return []; // Return empty array for fallback
     }
 
-    const { rows } = await sql`
-      SELECT w.*, p.name, p.price, p.image, p.verified
-      FROM wishlists w 
-      JOIN products p ON w.productId = p.id 
-      WHERE w.userId = ${userId}
-      ORDER BY w.createdAt DESC
-    `;
-    return rows;
+    try {
+      const { rows } = await sql`
+        SELECT w.id as wishlist_id, w.userid, w.productid, w.createdat as wishlist_created,
+               p.id as product_id, p.name, p.price, p.image, p.verified, p.description, p.category
+        FROM wishlists w 
+        JOIN products p ON w.productid = p.id 
+        WHERE w.userid = ${userId}
+        ORDER BY w.createdat DESC
+      `;
+      
+      // Map the results to ensure we have the correct productId
+      return rows.map((row: any) => ({
+        id: row.wishlist_id,
+        userId: row.userid,
+        productId: row.productid || row.product_id, // Ensure we have productId
+        createdAt: row.wishlist_created,
+        // Product info
+        name: row.name,
+        price: row.price,
+        image: row.image,
+        verified: row.verified,
+        description: row.description,
+        category: row.category
+      }));
+    } catch (error) {
+      console.error('Error fetching wishlist:', error);
+      return [];
+    }
   },
 
   async add(userId: string, productId: string) {
@@ -540,9 +787,9 @@ export const wishlistService = {
     }
 
     const { rows } = await sql`
-      INSERT INTO wishlists (userId, productId) 
+      INSERT INTO wishlists (userid, productid) 
       VALUES (${userId}, ${productId})
-      ON CONFLICT (userId, productId) DO NOTHING
+      ON CONFLICT (userid, productid) DO NOTHING
       RETURNING *
     `;
     return rows[0];
@@ -555,7 +802,7 @@ export const wishlistService = {
 
     const { rowCount } = await sql`
       DELETE FROM wishlists 
-      WHERE userId = ${userId} AND productId = ${productId}
+      WHERE userid = ${userId} AND productid = ${productId}
     `;
     return rowCount > 0;
   },
@@ -567,7 +814,7 @@ export const wishlistService = {
 
     // Check if exists
     const { rows: existing } = await sql`
-      SELECT * FROM wishlists WHERE userId = ${userId} AND productId = ${productId}
+      SELECT * FROM wishlists WHERE userid = ${userId} AND productid = ${productId}
     `;
 
     if (existing.length > 0) {
@@ -622,7 +869,7 @@ export const userService = {
       INSERT INTO users (id, email, name, password, phone, image, provider)
       VALUES (${id}, ${user.email}, ${user.name}, ${user.password || null}, 
               ${user.phone || null}, ${user.image || null}, ${user.provider || 'credentials'})
-      RETURNING id, email, name, phone, image, provider, createdAt
+      RETURNING id, email, name, phone, image, provider, createdat
     `;
 
     return rows[0];
@@ -658,9 +905,9 @@ export const userService = {
     const { rows } = await sql.query(
       `
       UPDATE users 
-      SET ${setClause}, updatedAt = CURRENT_TIMESTAMP
+      SET ${setClause}, updatedat = CURRENT_TIMESTAMP
       WHERE id = $1
-      RETURNING id, email, name, phone, image, provider, createdAt, updatedAt
+      RETURNING id, email, name, phone, image, provider, createdat, updatedat
     `,
       values,
     );
@@ -677,7 +924,7 @@ export const userService = {
 
     const { rows } = await sql`
       UPDATE users 
-      SET password = ${hashedPassword}, updatedAt = CURRENT_TIMESTAMP
+      SET password = ${hashedPassword}, updatedat = CURRENT_TIMESTAMP
       WHERE id = ${id}
       RETURNING id, email, name
     `;
