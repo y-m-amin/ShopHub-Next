@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { initializeTables, seedDatabase } from '../../../lib/postgres-database';
 
-export async function POST() {
+export async function POST(request: Request) {
   try {
     // Check if POSTGRES_URL is configured
     if (!process.env.POSTGRES_URL) {
@@ -14,15 +14,27 @@ export async function POST() {
       );
     }
 
+    // Parse request body to check for force parameter
+    let force = false;
+    try {
+      const body = await request.json();
+      force = body.force === true;
+    } catch {
+      // If no body or invalid JSON, use default force = false
+    }
+
     // Initialize tables
     await initializeTables();
 
-    // Seed with initial data
-    await seedDatabase();
+    // Seed with initial data (with force option)
+    await seedDatabase(force);
 
     return NextResponse.json({
-      message: 'Database setup completed successfully',
+      message: force 
+        ? 'Database force re-seeded successfully' 
+        : 'Database setup completed successfully',
       status: 'success',
+      force,
     });
   } catch (error) {
     console.error('Database setup error:', error);

@@ -8,13 +8,17 @@ export default function SetupPage() {
   >('idle');
   const [message, setMessage] = useState('');
 
-  const handleSetup = async () => {
+  const handleSetup = async (force = false) => {
     setStatus('loading');
     setMessage('');
 
     try {
       const response = await fetch('/api/setup', {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ force }),
       });
 
       const data = await response.json();
@@ -42,17 +46,36 @@ export default function SetupPage() {
             Initialize your PostgreSQL database with tables and sample data.
           </p>
 
-          <button
-            onClick={handleSetup}
-            disabled={status === 'loading'}
-            className={`w-full py-2 px-4 rounded-md font-medium ${
-              status === 'loading'
-                ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-blue-600 hover:bg-blue-700'
-            } text-white transition-colors`}
-          >
-            {status === 'loading' ? 'Setting up...' : 'Initialize Database'}
-          </button>
+          <div className='space-y-3'>
+            <button
+              onClick={() => handleSetup(false)}
+              disabled={status === 'loading'}
+              className={`w-full py-2 px-4 rounded-md font-medium ${
+                status === 'loading'
+                  ? 'bg-gray-400 cursor-not-allowed'
+                  : 'bg-blue-600 hover:bg-blue-700'
+              } text-white transition-colors`}
+            >
+              {status === 'loading' ? 'Setting up...' : 'Initialize Database'}
+            </button>
+
+            <button
+              onClick={() => handleSetup(true)}
+              disabled={status === 'loading'}
+              className={`w-full py-2 px-4 rounded-md font-medium ${
+                status === 'loading'
+                  ? 'bg-gray-400 cursor-not-allowed'
+                  : 'bg-red-600 hover:bg-red-700'
+              } text-white transition-colors`}
+            >
+              {status === 'loading' ? 'Re-seeding...' : 'Force Re-seed Data'}
+            </button>
+          </div>
+
+          <div className='text-xs text-gray-500 text-center'>
+            <p><strong>Initialize:</strong> Sets up tables and adds data if none exists</p>
+            <p><strong>Force Re-seed:</strong> Clears existing products and adds fresh data</p>
+          </div>
 
           {message && (
             <div

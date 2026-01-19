@@ -46,7 +46,7 @@ const fallbackProducts: Product[] = [
     price: 1299.99,
     category: 'Electronics',
     image:
-      'https://images.samsung.com/is/image/samsung/p6pim/us/2401/gallery/us-galaxy-s24-ultra-s928-sm-s928uzkeusq-thumb-539573016',
+      'https://images.samsung.com/bd/smartphones/galaxy-s24-ultra/images/galaxy-s24-ultra-highlights-color-titanium-black-back-mo.jpg?imbypass=true',
     rating: 4.7,
     stock: 20,
     sellerId: 'samsung@official.com',
@@ -61,7 +61,7 @@ const fallbackProducts: Product[] = [
     price: 399.99,
     category: 'Audio',
     image:
-      'https://m.media-amazon.com/images/I/51QeS0jkx+L._AC_UY327_FMwebp_QL65_.jpg',
+      'https://assets.gadgetandgear.com/upload/media/1708837385023112.jpeg',
     rating: 4.8,
     stock: 35,
     sellerId: 'sony@official.com',
@@ -91,13 +91,105 @@ const fallbackProducts: Product[] = [
     price: 199.99,
     category: 'Home',
     image:
-      'https://m.media-amazon.com/images/I/61J8UP8pEWL._AC_UY327_FMwebp_QL65_.jpg',
+      'https://www.assets.signify.com/is/image/Signify/046677563301-929002468706-Philips-Hue_WCA-10_5W-A19-E26-4set-CA-RTP',
     rating: 4.7,
     stock: 40,
     sellerId: 'philips@smart.com',
     verified: true,
     createdAt: '2025-01-01T07:00:00.000Z',
   },
+  {
+    id: '7',
+    name: 'Nexus Pro Ultra',
+    description: 'High-performance computing device for the modern professional. Featuring zero-latency architecture and titanium casing.',
+    price: 1299.99,
+    category: 'Electronics',
+    image: 'https://www.yankodesign.com/images/design_news/2022/12/teenage-engineering-desktop-pc-case-exudes-raw-power-with-a-retro-futuristic-vibe/teenage-engineering-computer-1-aluminum-3.jpg',
+    rating: 4.8,
+    stock: 12,
+    sellerId: 'admin@nexus.com',
+    verified: true,
+    createdAt: '2025-01-01T08:00:00.000Z'
+  },
+  {
+    id: '8',
+    name: 'Stealth Audio X',
+    description: 'Noise-cancelling headphones with biometric sensors and immersive spatial audio engineering.',
+    price: 349,
+    category: 'Audio',
+    image: 'https://designwanted.com/wp-content/uploads/2023/01/Wireless-headphone-concepts-cover.jpg',
+    rating: 4.9,
+    stock: 45,
+    sellerId: 'admin@nexus.com',
+    verified: false,
+    createdAt: '2025-01-01T09:00:00.000Z'
+  },
+  {
+    id: '9',
+    name: 'Lumina Smart Light',
+    description: 'Ambient lighting system controlled by AI, adapting to your circadian rhythm for better sleep.',
+    price: 89.99,
+    category: 'Home',
+    image: 'https://img.freepik.com/free-photo/side-view-hand-with-smartphone-smart-light_23-2150671605.jpg?semt=ais_hybrid&w=740&q=80',
+    rating: 4.5,
+    stock: 120,
+    sellerId: 'admin@nexus.com',
+    verified: true,
+    createdAt: '2025-01-01T10:00:00.000Z'
+  },
+  {
+    id: '10',
+    name: 'Vanguard Backpack',
+    description: 'Anti-theft modular backpack designed for digital nomads. Waterproof and includes solar charging panel.',
+    price: 159.5,
+    category: 'Travel',
+    image: 'https://conceptkart.com/cdn/shop/files/Concept-Kart-BANGE-BG-7216plus-Antitheft-Lock-USBPort-Travel-Backpack-_2_grande.jpg?v=1690539064',
+    rating: 4.7,
+    stock: 30,
+    sellerId: 'admin@nexus.com',
+    verified: false,
+    createdAt: '2025-01-01T11:00:00.000Z'
+  },
+  {
+    id: '11',
+    name: 'Core Fitness Tracker',
+    description: 'Advanced metabolic tracking in a sleek, minimalist band. 30-day battery life.',
+    price: 199,
+    category: 'Fitness',
+    image: 'https://www.sbsmobile.com/cdn/shop/files/GLBEATSMARTHRA_PAN_1.jpg?v=1742378002&width=2048',
+    rating: 4.3,
+    stock: 80,
+    sellerId: 'admin@nexus.com',
+    verified: false,
+    createdAt: '2025-01-01T12:00:00.000Z'
+  },
+  {
+    id: '12',
+    name: 'Infinite Ergo Chair',
+    description: 'The last office chair you will ever need. Self-adjusting lumbar support and breathable mesh.',
+    price: 899,
+    category: 'Furniture',
+    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcScamQKxtGnB1WfM96fMMQ3886jkcQta5ccdg&s',
+    rating: 4.9,
+    stock: 5,
+    sellerId: 'admin@nexus.com',
+    verified: true,
+    createdAt: '2025-01-01T13:00:00.000Z'
+  },
+  {
+    id: '1768730198049',
+    name: 'RTX 3060 MSI Gaming X',
+    description: 'Graphics card',
+    price: 200,
+    category: 'Electronics',
+    image: 'https://www.startech.com.bd/image/cache/catalog/graphics-card/msi/rtx-3060-gaming-x/rtx-3060-gaming-x-01-500x500.jpg',
+    stock: 8,
+    sellerId: 'ymohammad18@gmail.com',
+    verified: false,
+    rating: 5,
+    createdAt: '2026-01-18T09:56:38.049Z',
+    updatedAt: '2026-01-18T10:19:56.910Z'
+  }
 ];
 
 // Initialize database tables
@@ -173,7 +265,7 @@ export async function initializeTables() {
 }
 
 // Seed initial data (only for database)
-export async function seedDatabase() {
+export async function seedDatabase(force = false) {
   if (!isDatabaseConfigured()) {
     throw new Error(
       'Database not configured. Please set POSTGRES_URL environment variable.',
@@ -184,9 +276,14 @@ export async function seedDatabase() {
     // Check if products already exist
     const { rows: existingProducts } =
       await sql`SELECT COUNT(*) as count FROM products`;
-    if (existingProducts[0].count > 0) {
+    if (existingProducts[0].count > 0 && !force) {
       console.log('Database already seeded');
       return;
+    }
+
+    if (force && existingProducts[0].count > 0) {
+      console.log('Force re-seeding: Clearing existing products...');
+      await sql`DELETE FROM products`;
     }
 
     console.log('Seeding database with initial products...');
@@ -195,7 +292,7 @@ export async function seedDatabase() {
     const allProducts = [
       ...fallbackProducts,
       {
-        id: '7',
+        id: '13',
         name: 'Gaming Laptop RTX 4070',
         description:
           'High-performance gaming laptop with NVIDIA RTX 4070, Intel i7-13700H, 16GB RAM, and 144Hz display.',
@@ -209,7 +306,7 @@ export async function seedDatabase() {
         verified: false,
       },
       {
-        id: '8',
+        id: '14',
         name: 'Marshall Acton III',
         description:
           'Iconic Bluetooth speaker with classic Marshall design, delivering room-filling sound with deep bass.',

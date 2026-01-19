@@ -21,9 +21,31 @@ export async function GET(request: NextRequest) {
       | 'name'
       | 'rating'
       | null;
+    
+    // Pagination parameters
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '9');
+    const offset = (page - 1) * limit;
 
-    const products = await productService.getAll(sortBy || undefined);
-    return NextResponse.json(products, { headers: corsHeaders });
+    const allProducts = await productService.getAll(sortBy || undefined);
+    
+    // Apply pagination
+    const paginatedProducts = allProducts.slice(offset, offset + limit);
+    
+    // Return paginated response with metadata
+    const response = {
+      products: paginatedProducts,
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(allProducts.length / limit),
+        totalProducts: allProducts.length,
+        productsPerPage: limit,
+        hasNextPage: page < Math.ceil(allProducts.length / limit),
+        hasPreviousPage: page > 1,
+      }
+    };
+
+    return NextResponse.json(response, { headers: corsHeaders });
   } catch (error) {
     console.error('Error fetching products:', error);
     return NextResponse.json(
