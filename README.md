@@ -190,6 +190,12 @@ nexus-marketplace/
 2. **Initialize**: Click "Initialize Database" for first setup
 3. **Re-seed**: Use "Force Re-seed Data" to refresh sample data
 
+## 🌐 Live Demo Link
+
+You can visit the live deployed version of Nexus TechHubr here:
+
+👉 [Nexus TechHub](https://nexus-techhub.vercel.app/)
+
 ## 🎨 Customization
 
 ### **Animations**
