@@ -3,6 +3,12 @@
 
 A modern, high-performance e-commerce marketplace built with Next.js 15, featuring advanced animations, PostgreSQL database integration, and a comprehensive product management system.
 
+## 🌐 Live Demo Link
+
+You can visit the live deployed version of Nexus TechHubr here:
+
+[Nexus TechHub](https://nexus-techhub.vercel.app/)
+
 ## 🚀 Features
 
 ### **Core Functionality**
